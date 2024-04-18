@@ -1,0 +1,1 @@
+nft add rule inet filter input udp dport 5353 limit rate over 10/second burst 20 packets drop

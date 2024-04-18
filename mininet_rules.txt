@@ -1,0 +1,60 @@
+ws2 echo "Adding nft rules for ws2"
+ws2 nft add table inet filter
+ws2 nft add chain inet filter input { type filter hook input priority 0 \; }
+ws2 nft add rule inet filter input ip saddr 10.2.0.0/24 ip protocol icmp icmp type echo-request drop
+ws2 nft add rule inet filter input ip saddr 10.12.0.0/24 ip protocol icmp icmp type echo-request drop
+ws2 nft add rule inet filter input ip saddr 10.2.0.0/24 ct state new drop
+ws2 nft add rule inet filter input ip saddr 10.12.0.0/24 ct state new drop
+ws2 nft add chain inet filter output { type filter hook output priority 0 \; policy accept \; }
+ws2 echo "ws2 now drop incoming ping and new connections from internet and DMZ servers"
+ws2 echo ""
+ws2 echo "------------------------------------------------------------------"
+ws3 echo ""
+ws3 echo "Adding nft rules for ws3"
+ws3 nft add table inet filter
+ws3 nft add chain inet filter input { type filter hook input priority 0 \; }
+ws3 nft add rule inet filter input ip saddr 10.2.0.0/24 ip protocol icmp icmp type echo-request drop
+ws3 nft add rule inet filter input ip saddr 10.12.0.0/24 ip protocol icmp icmp type echo-request drop
+ws3 nft add rule inet filter input ip saddr 10.2.0.0/24 ct state new drop
+ws3 nft add rule inet filter input ip saddr 10.12.0.0/24 ct state new drop
+ws3 nft add chain inet filter output { type filter hook output priority 0 \; policy accept \; }
+ws3 echo "ws3 now drop incoming ping and new connections from internet and DMZ servers"
+ws3 echo ""
+ws3 echo "------------------------------------------------------------------"
+dns echo ""
+dns echo "Adding nft rules for DMZ servers"
+dns nft add table inet filter
+dns nft add chain inet filter input { type filter hook input priority 0 \; }
+dns nft add rule inet filter input ip saddr 10.12.0.0/24 drop
+dns nft add chain inet filter output { type filter hook output priority 0 \; policy drop \; }
+dns nft add rule inet filter output ct state established,related accept
+
+http nft add table inet filter
+http nft add chain inet filter input { type filter hook input priority 0 \; }
+http nft add rule inet filter input ip saddr 10.12.0.0/24 drop
+http nft add chain inet filter output { type filter hook output priority 0 \; policy drop \; }
+http nft add rule inet filter output ct state established,related accept
+
+ntp nft add table inet filter
+ntp nft add chain inet filter input { type filter hook input priority 0 \; }
+ntp nft add rule inet filter input ip saddr 10.12.0.0/24 drop
+ntp nft add chain inet filter output { type filter hook output priority 0 \; policy drop \; }
+ntp nft add rule inet filter output ct state established,related accept
+
+ftp nft add table inet filter
+ftp nft add chain inet filter input { type filter hook input priority 0 \; }
+ftp nft add rule inet filter input ip saddr 10.12.0.0/24 drop
+ftp nft add chain inet filter output { type filter hook output priority 0 \; policy drop \; }
+ftp nft add rule inet filter output ct state established,related accept
+
+ftp echo "DMZ servers can no longer communicate between each other and establish new connections or ping internet and workstations "
+ftp echo ""
+ftp echo "------------------------------------------------------------------"
+ftp echo ""
+
+
+
+internet nft add table inet filter
+internet nft add chain inet filter input { type filter hook input priority 0 \; }
+internet nft add chain inet filter output { type filter hook output priority 0 \; }
+internet echo "Every basic rules have been set"
